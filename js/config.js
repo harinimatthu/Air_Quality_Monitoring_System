@@ -8,10 +8,10 @@ const CONFIG = {
     USE_MOCK_DATA: false,
     
     // The IP address/URL of the ESP8266 API
-    ESP8266_API_URL: 'http://192.168.1.42/api/data',
+    ESP8266_API_URL: 'http://10.93.97.246/api/data',
     
     // The URL displayed in the QR Code section
-    DASHBOARD_URL: 'http://192.168.1.42/api/data',
+    DASHBOARD_URL: 'http://10.93.97.246/api/data',
     
     // How often to update the dashboard (in milliseconds)
     REFRESH_INTERVAL_MS: 2000,

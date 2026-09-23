@@ -30,6 +30,7 @@ const UI = {
         if (CONFIG.USE_MOCK_DATA) {
             this.elements.demoBadge.classList.remove('hidden');
         }
+        AeraPup.init();
     },
 
     updateConnectionStatus(connected) {
@@ -57,6 +58,14 @@ const UI = {
         this.elements.tempErrorMsg.classList.add('hidden');
         this.elements.humErrorMsg.classList.add('hidden');
 
+        // Override ESP8266 binary status with detailed 4-state status based on raw value
+        if (data.air !== undefined && data.air !== null) {
+            if (data.air < CONFIG.THRESHOLDS.GOOD) data.status = "GOOD";
+            else if (data.air < CONFIG.THRESHOLDS.MODERATE) data.status = "MODERATE";
+            else if (data.air < CONFIG.THRESHOLDS.POOR) data.status = "POOR";
+            else data.status = "HAZARDOUS";
+        }
+
         // Update Air Quality (MQ135)
         if (data.air !== undefined && data.air !== null) {
             this.elements.mq135Value.textContent = data.air;
@@ -64,16 +73,23 @@ const UI = {
             
             // Status styling
             this.elements.airStatusText.textContent = data.status;
-            if (data.status === "POOR") {
-                this.elements.airStatusBadge.classList.add('poor');
+            this.elements.airStatusBadge.className = 'status-badge ' + data.status.toLowerCase();
+            
+            if (data.status === "POOR" || data.status === "HAZARDOUS") {
                 this.elements.gaugeFill.style.stroke = "var(--accent-poor)";
+            } else if (data.status === "MODERATE") {
+                this.elements.gaugeFill.style.stroke = "var(--accent-warning)";
             } else {
-                this.elements.airStatusBadge.classList.remove('poor');
                 this.elements.gaugeFill.style.stroke = "var(--accent-good)";
             }
+            
+            // Update Aera
+            AeraPup.update(data.status);
+            
         } else {
             this.elements.mq135Value.textContent = "--";
             this.elements.airErrorMsg.classList.remove('hidden');
+            AeraPup.update("UNKNOWN");
         }
 
         // Update Temperature
@@ -113,7 +129,7 @@ const UI = {
         this.elements.humValue.textContent = "--";
         
         this.elements.airStatusText.textContent = "--";
-        this.elements.airStatusBadge.classList.remove('poor');
+        this.elements.airStatusBadge.className = 'status-badge'; // Reset class
         this.updateGauge(0);
         
         this.elements.airErrorMsg.textContent = "Connection Lost";
@@ -124,5 +140,7 @@ const UI = {
         
         this.elements.humErrorMsg.textContent = "Connection Lost";
         this.elements.humErrorMsg.classList.remove('hidden');
+        
+        AeraPup.update("UNKNOWN");
     }
 };

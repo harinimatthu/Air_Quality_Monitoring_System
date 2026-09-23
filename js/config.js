@@ -16,7 +16,12 @@ const CONFIG = {
     // How often to update the dashboard (in milliseconds)
     REFRESH_INTERVAL_MS: 2000,
     
-    // Threshold for Air Quality classification
-    // Readings >= this value will be classified as POOR
-    MQ135_THRESHOLD: 600
+    // Thresholds for Air Quality classification
+    // Based on raw MQ135 readings (0-1023)
+    THRESHOLDS: {
+        GOOD: 300,
+        MODERATE: 500,
+        POOR: 700
+        // >= 700 will be HAZARDOUS
+    }
 };

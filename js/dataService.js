@@ -14,15 +14,18 @@ let mockData = {
 /**
  * Generate realistic shifting mock data for demo mode
  */
+let mockCycle = 0;
 function generateMockData() {
-    // Random walk for values
-    mockData.air += Math.floor(Math.random() * 41) - 15; // Shift by -15 to +25
+    mockCycle = (mockCycle + 1) % 4;
+    
+    // Cycle through 4 states: 200 (GOOD), 400 (MODERATE), 600 (POOR), 850 (HAZARDOUS)
+    if (mockCycle === 0) mockData.air = 200;
+    else if (mockCycle === 1) mockData.air = 400;
+    else if (mockCycle === 2) mockData.air = 600;
+    else mockData.air = 850;
+    
     mockData.temperature += (Math.random() * 1.0) - 0.5;
     mockData.humidity += (Math.random() * 2.0) - 1.0;
-
-    // Bounds checking
-    if (mockData.air < 0) mockData.air = 0;
-    if (mockData.air > 1023) mockData.air = 1023;
     
     if (mockData.temperature < 15) mockData.temperature = 15;
     if (mockData.temperature > 40) mockData.temperature = 40;
@@ -31,7 +34,10 @@ function generateMockData() {
     if (mockData.humidity > 95) mockData.humidity = 95;
 
     // Apply threshold logic
-    mockData.status = (mockData.air >= CONFIG.MQ135_THRESHOLD) ? "POOR" : "GOOD";
+    if (mockData.air < CONFIG.THRESHOLDS.GOOD) mockData.status = "GOOD";
+    else if (mockData.air < CONFIG.THRESHOLDS.MODERATE) mockData.status = "MODERATE";
+    else if (mockData.air < CONFIG.THRESHOLDS.POOR) mockData.status = "POOR";
+    else mockData.status = "HAZARDOUS";
 
     // Format numbers
     return {
